@@ -1,0 +1,12 @@
+version: v1beta1
+plugins:
+  # Golang
+  - name: go
+    out: gen/go
+    opt: paths=source_relative
+  - name: go-grpc
+    out: gen/go
+    opt: paths=source_relative,require_unimplemented_servers=false
+  - name: grpc-gateway
+    out: gen/go
+    opt: logtostderr=true,paths=source_relative,generate_unbound_methods=true
