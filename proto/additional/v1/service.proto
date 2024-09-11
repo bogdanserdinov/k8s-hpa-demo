@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package addition.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "example/gen/go/addition/v1;additionpb";
+
+service AdditionService {
+  rpc Add(AddRequest) returns (AddResponse) {
+    option (google.api.http) = {
+      post: "/api/addition/v1/add"
+      body: "*"
+    };
+  };
+};
+
+message AddRequest {
+  int32 a = 1;
+  int32 b = 2;
+};
+
+message AddResponse {
+  int32 rez = 1;
+};
