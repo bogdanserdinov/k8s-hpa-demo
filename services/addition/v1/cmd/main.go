@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc"
 
 	additionpb "example/gen/go/addition/v1"
-	"example/services/additional"
+	"example/services/addition/v1"
 )
 
 type Config struct {
@@ -60,7 +60,7 @@ func main() {
 			grpc.MaxSendMsgSize(defaultGrpcMessageSize),
 		)
 
-		additionServer := additional.New()
+		additionServer := v1.New()
 		additionpb.RegisterAdditionServiceServer(grpcServer, additionServer)
 
 		logger.Info("starting additional server")

@@ -30,9 +30,9 @@ func (s *service) nameWithVersion() string {
 }
 
 var (
-	// TODO(evg): extract service names automatically?
 	services = []*service{
 		{name: "addition", version: "v1", containerName: "addition-service"},
+		{name: "gateway", version: "v1", containerName: "gateway-service"},
 	}
 )
 
@@ -45,14 +45,16 @@ func Services() error {
 	}
 
 	for _, s := range services {
-		servicePath := fmt.Sprintf("./services/%v/cmd/%v", s.nameWithVersion(), s.name)
+		servicePath := fmt.Sprintf("./services/%v/cmd", s.nameWithVersion())
 		if exists, _ := dirExists(servicePath); !exists {
 			log.Printf("Skipping %v, not found", servicePath)
 			continue
 		}
 
 		log.Printf("Building service %v", servicePath)
-		err := sh.Run("go", "build", "-o", "build", servicePath)
+		buildPath := "build/" + s.name
+
+		err := sh.Run("go", "build", "-o", buildPath, servicePath)
 		if err != nil && mg.ExitStatus(err) != 1 {
 			return errors.Wrap(err, "failed to build service")
 		}
@@ -72,14 +74,14 @@ func Down() error {
 type Docker mg.Namespace
 
 func (Docker) BuildImage() error {
-	return buildImage(true, false)
+	return buildImage(false)
 }
 
 func (Docker) BuildImageM1() error {
-	return buildImage(true, true)
+	return buildImage(true)
 }
 
-func buildImage(mocks, m1 bool) error {
+func buildImage(m1 bool) error {
 	dockerfileName := "Dockerfile"
 	if m1 {
 		dockerfileName = "Dockerfile.m1"
@@ -88,7 +90,6 @@ func buildImage(mocks, m1 bool) error {
 		"docker",
 		"build",
 		"--build-arg", "CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S)",
-		"--build-arg", fmt.Sprintf("MOCKS=%v", mocks),
 		"-t",
 		"example",
 		"-f",
