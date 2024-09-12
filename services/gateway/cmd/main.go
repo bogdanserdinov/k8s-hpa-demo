@@ -19,7 +19,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	additionpb "example/gen/go/additional/v1"
+	additionpb "example/gen/go/addition/v1"
 )
 
 type Config struct {

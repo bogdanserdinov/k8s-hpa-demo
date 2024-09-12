@@ -2,7 +2,8 @@ package additional
 
 import (
 	"context"
-	additionpb "example/gen/go/additional/v1"
+
+	additionpb "example/gen/go/addition/v1"
 )
 
 var _ additionpb.AdditionServiceServer = (*server)(nil)

@@ -14,7 +14,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
-	additionpb "example/gen/go/additional/v1"
+	additionpb "example/gen/go/addition/v1"
 	"example/services/additional"
 )
 
