@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: additional/v1/service.proto
+// source: addition/v1/service.proto
 
 package additionpb
 
@@ -103,5 +103,5 @@ var AdditionService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "additional/v1/service.proto",
+	Metadata: "addition/v1/service.proto",
 }
