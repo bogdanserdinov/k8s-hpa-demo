@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/caarlos0/env/v6"
@@ -20,6 +17,8 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	additionpb "example/gen/go/addition/v1"
+	"example/pkg/greceful/shutdown"
+	"example/pkg/http/cors"
 )
 
 type Config struct {
@@ -29,7 +28,7 @@ type Config struct {
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	gracefulShutdown(func() {
+	shutdown.Graceful(func() {
 		cancel()
 	})
 
@@ -71,6 +70,8 @@ func main() {
 	}
 
 	router := mux.NewRouter()
+	router.HandleFunc("/heathz", func(writer http.ResponseWriter, request *http.Request) {}).Methods(http.MethodGet)
+
 	router.PathPrefix("/").Handler(
 		http.StripPrefix("/", grpcMux),
 	)
@@ -78,7 +79,7 @@ func main() {
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
 	httpServer := &http.Server{
 		Addr:              httpServerListen,
-		Handler:           allowCORS(router),
+		Handler:           cors.Allow(router),
 		ReadHeaderTimeout: 2 * time.Second,
 	}
 
@@ -100,28 +101,4 @@ func main() {
 	})
 
 	logger.Info("The gateway-service was terminated with: %v", zap.Error(group.Wait()))
-}
-
-func allowCORS(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodOptions {
-			return
-		}
-
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, OPTIONS, POST, PUT, PATCH, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
-
-		h.ServeHTTP(w, r)
-	})
-}
-
-func gracefulShutdown(actions func()) {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
-	go func() {
-		<-quit
-		actions()
-	}()
 }
