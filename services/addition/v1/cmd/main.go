@@ -2,29 +2,33 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net"
-	"os"
-	"os/signal"
-	"syscall"
+	"net/http"
+	"time"
 
 	"github.com/caarlos0/env/v6"
+	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
 	additionpb "example/gen/go/addition/v1"
-	"example/services/addition/v1"
+	"example/pkg/greceful/shutdown"
+	"example/pkg/http/cors"
+	service "example/services/addition/v1"
 )
 
 type Config struct {
-	GrpcServerPort int `env:"GRPC_SERVER_PORT,required"`
+	GrpcServerPort        int `env:"GRPC_SERVER_PORT,required"`
+	HealthcheckServerPort int `env:"HEALTHCHECK_SERVER_PORT,required"`
 }
 
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
-	gracefulShutdown(func() {
+	shutdown.Graceful(func() {
 		cancel()
 	})
 
@@ -51,8 +55,7 @@ func main() {
 
 	var group errgroup.Group
 
-	// GRPC endpoints
-	{
+	{ // GRPC endpoints
 		const defaultGrpcMessageSize = 2048
 
 		grpcServer := grpc.NewServer(
@@ -60,10 +63,10 @@ func main() {
 			grpc.MaxSendMsgSize(defaultGrpcMessageSize),
 		)
 
-		additionServer := v1.New()
+		additionServer := service.New()
 		additionpb.RegisterAdditionServiceServer(grpcServer, additionServer)
 
-		logger.Info("starting additional server")
+		logger.Info("starting additional grpc server")
 
 		group.Go(func() error {
 			<-ctx.Done()
@@ -80,15 +83,33 @@ func main() {
 		})
 	}
 
+	{ // HTTP endpoints.
+		httpServerListen := fmt.Sprintf("0.0.0.0:%v", cfg.HealthcheckServerPort)
+
+		router := mux.NewRouter()
+		router.HandleFunc("/heathz", func(writer http.ResponseWriter, request *http.Request) {}).Methods(http.MethodGet)
+
+		httpServer := &http.Server{
+			Addr:              httpServerListen,
+			Handler:           cors.Allow(router),
+			ReadHeaderTimeout: 2 * time.Second,
+		}
+
+		logger.Info("starting additional healthz server")
+
+		group.Go(func() error {
+			<-ctx.Done()
+			return httpServer.Shutdown(ctx)
+		})
+		group.Go(func() error {
+			err := httpServer.ListenAndServe()
+			if errors.Is(err, http.ErrServerClosed) {
+				return nil
+			}
+
+			return err
+		})
+	}
+
 	logger.Info("The additional-service was terminated with: %v", zap.Error(group.Wait()))
-}
-
-func gracefulShutdown(action func()) {
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
-	go func() {
-		<-done
-		action()
-	}()
 }
