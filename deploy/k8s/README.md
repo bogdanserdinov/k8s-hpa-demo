@@ -1,9 +1,4 @@
-This folder contains deployments and services for both the gateway and addition services.
-
-### Notes:
-
-1) Each service is deployed in its own independent namespace.
-2) We use Deployments instead of ReplicaSets or Pod definitions directly.
+This folder contains k8s manifests for both the gateway and addition services.
 
 ### How to Apply All K8s Changes
 To apply changes to your Kubernetes cluster, use the following commands in the order specified to ensure that dependencies are applied correctly:
