@@ -1,30 +1,26 @@
-This folder contains deployments and services for both gateway and addition service.
+This folder contains deployments and services for both the gateway and addition services.
 
-Notes:
+### Notes:
 
-1) Every service has independent namespace.
-2) We use deployments instead of replicaset or pod definition
-3) Namespace declaration file named as 0_namespace.yaml because of order, namespace should be created firstly.
+1) Each service is deployed in its own independent namespace.
+2) We use Deployments instead of ReplicaSets or Pod definitions directly.
 
-Files:
-- config.yaml 
-- deployment.yaml
-- service.yaml
-- namespace.yaml
+### How to Apply All K8s Changes
+To apply changes to your Kubernetes cluster, use the following commands in the order specified to ensure that dependencies are applied correctly:
 
-## How to apply all k8s changes:
-``
+```bash
 kubectl apply -f namespace.yaml
 kubectl apply -f config.yaml
 kubectl apply -f deployment.yaml
 kubectl apply -f service.yaml
-``
+```
 
-## How to rollback changes:
+### How to Rollback Changes
+To remove the resources you applied, use the following commands:
 
-``
+```bash
 kubectl delete deployment <deployment-name> -n <namespace>
 kubectl delete service <service-name> -n <namespace>
 kubectl delete configmap <configmap-name> -n <namespace>
 kubectl delete namespace <namespace>
-``
+```
