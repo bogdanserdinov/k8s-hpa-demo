@@ -65,7 +65,7 @@ func main() {
 		),
 	}
 
-	if err := additionpb.RegisterAdditionServiceHandlerFromEndpoint(ctx, grpcMux, cfg.AdditionalServerAddr, opts); err != nil {
+	if err = additionpb.RegisterAdditionServiceHandlerFromEndpoint(ctx, grpcMux, cfg.AdditionalServerAddr, opts); err != nil {
 		log.Fatalf("failed to register addition service: %v", err)
 	}
 

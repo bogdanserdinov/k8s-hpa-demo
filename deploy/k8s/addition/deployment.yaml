@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: addition
+  namespace: addition
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: addition
+  template:
+    metadata:
+      labels:
+        app: addition
+    spec:
+      containers:
+        - name: addition
+          image: bogdanserdinov/infra-example:0.1.0
+          command: [ "/bin/sh", "-c", "addition" ]
+          ports:
+            - containerPort: 9090
+          envFrom:
+            - configMapRef:
+                name: addition-config
+          livenessProbe:
+            httpGet:
+              path: /heathz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 10

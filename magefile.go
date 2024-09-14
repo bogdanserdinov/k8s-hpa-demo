@@ -74,26 +74,12 @@ func Down() error {
 type Docker mg.Namespace
 
 func (Docker) BuildImage() error {
-	return buildImage(false)
-}
-
-func (Docker) BuildImageM1() error {
-	return buildImage(true)
-}
-
-func buildImage(m1 bool) error {
-	dockerfileName := "Dockerfile"
-	if m1 {
-		dockerfileName = "Dockerfile.m1"
-	}
 	return sh.Run(
 		"docker",
 		"build",
 		"--build-arg", "CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S)",
 		"-t",
-		"example",
-		"-f",
-		dockerfileName,
+		"infra-example",
 		".",
 	)
 }
