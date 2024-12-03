@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package subtraction.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "example/gen/go/subtraction/v1;subtractionpb";
+
+service SubtractionService {
+  rpc Subtract(SubtractRequest) returns (SubtractResponse) {
+    option (google.api.http) = {
+      post: "/api/subtraction/v1/subtract"
+      body: "*"
+    };
+  };
+};
+
+message SubtractRequest {
+  int32 a = 1;
+  int32 b = 2;
+};
+
+message SubtractResponse {
+  int32 rez = 1;
+};

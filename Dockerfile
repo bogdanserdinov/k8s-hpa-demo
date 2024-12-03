@@ -12,5 +12,4 @@ FROM alpine:3
 RUN apk add --no-cache libc6-compat
 WORKDIR /root/infra-example/
 COPY --from=builder /go/src/infra-example/build/* ./
-COPY --from=builder /go/src/infra-example/docs ./docs/
 ENV PATH="/root/infra-example:${PATH}"

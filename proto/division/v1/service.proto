@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package division.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "example/gen/go/division/v1;divisionpb";
+
+service DivisionService {
+  rpc Divide(DivideRequest) returns (DivideResponse) {
+    option (google.api.http) = {
+      post: "/api/division/v1/divide"
+      body: "*"
+    };
+  };
+};
+
+message DivideRequest {
+  int32 a = 1;
+  int32 b = 2;
+};
+
+message DivideResponse {
+  float rez = 1;
+};

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package multiplication.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "example/gen/go/multiplication/v1;multiplicationpb";
+
+service MultiplicationService {
+  rpc Multiply(MultiplyRequest) returns (MultiplyResponse) {
+    option (google.api.http) = {
+      post: "/api/multiplication/v1/multiply"
+      body: "*"
+    };
+  };
+};
+
+message MultiplyRequest {
+  int32 a = 1;
+  int32 b = 2;
+};
+
+message MultiplyResponse {
+  int64 rez = 1;
+};

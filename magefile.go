@@ -32,6 +32,9 @@ func (s *service) nameWithVersion() string {
 var (
 	services = []*service{
 		{name: "addition", version: "v1", containerName: "addition-service"},
+		{name: "subtraction", version: "v1", containerName: "subtraction-service"},
+		{name: "multiplication", version: "v1", containerName: "multiplication-service"},
+		{name: "division", version: "v1", containerName: "division-service"},
 		{name: "gateway", version: "v1", containerName: "gateway-service"},
 	}
 )

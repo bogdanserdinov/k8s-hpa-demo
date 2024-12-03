@@ -1,0 +1,14 @@
+proto
+third_party
+
+deploy
+
+docs
+
+.gitignore
+.golangci.yaml
+
+buf.gen.yaml
+buf.yaml
+
+README.md

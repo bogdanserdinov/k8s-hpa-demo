@@ -17,13 +17,20 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	additionpb "example/gen/go/addition/v1"
+	divisionpb "example/gen/go/division/v1"
+	multiplicationpb "example/gen/go/multiplication/v1"
+	subtractionpb "example/gen/go/subtraction/v1"
 	"example/pkg/greceful/shutdown"
 	"example/pkg/http/cors"
 )
 
 type Config struct {
-	AdditionalServerAddr string `env:"ADDITIONAL_SERVER_ADDR,required"`
-	HttpPublicServerPort int    `env:"HTTP_PUBLIC_SERVER_PORT,required"`
+	AdditionalServerAddr     string `env:"ADDITIONAL_SERVER_ADDR,required"`
+	SubtractionServerAddr    string `env:"SUBTRACTION_SERVER_ADDR,required"`
+	DivisionServerAddr       string `env:"DIVISION_SERVER_ADDR,required"`
+	MultiplicationServerAddr string `env:"MULTIPLICATION_SERVER_ADDR,required"`
+
+	HttpPublicServerPort int `env:"HTTP_PUBLIC_SERVER_PORT,required"`
 }
 
 func main() {
@@ -67,6 +74,18 @@ func main() {
 
 	if err = additionpb.RegisterAdditionServiceHandlerFromEndpoint(ctx, grpcMux, cfg.AdditionalServerAddr, opts); err != nil {
 		log.Fatalf("failed to register addition service: %v", err)
+	}
+
+	if err = subtractionpb.RegisterSubtractionServiceHandlerFromEndpoint(ctx, grpcMux, cfg.SubtractionServerAddr, opts); err != nil {
+		log.Fatalf("failed to register subtraction service: %v", err)
+	}
+
+	if err = multiplicationpb.RegisterMultiplicationServiceHandlerFromEndpoint(ctx, grpcMux, cfg.MultiplicationServerAddr, opts); err != nil {
+		log.Fatalf("failed to register multiplication service: %v", err)
+	}
+
+	if err = divisionpb.RegisterDivisionServiceHandlerFromEndpoint(ctx, grpcMux, cfg.DivisionServerAddr, opts); err != nil {
+		log.Fatalf("failed to register division service: %v", err)
 	}
 
 	router := mux.NewRouter()
