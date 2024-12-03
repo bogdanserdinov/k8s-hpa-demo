@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: division
+  namespace: division
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: division
+  template:
+    metadata:
+      labels:
+        app: division
+    spec:
+      containers:
+        - name: division
+          image: bogdanserdinov/infra-example:0.1.0
+          command: [ "/bin/sh", "-c", "division" ]
+          ports:
+            - containerPort: 9090
+          envFrom:
+            - configMapRef:
+                name: division-config
+          livenessProbe:
+            httpGet:
+              path: /heathz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 10

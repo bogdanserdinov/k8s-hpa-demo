@@ -5,4 +5,7 @@ metadata:
   namespace: gateway
 data:
   ADDITIONAL_SERVER_ADDR: "addition.addition.svc.cluster.local:9090"
+  SUBTRACTION_SERVER_ADDR: "subtraction.subtraction.svc.cluster.local:9090"
+  DIVISION_SERVER_ADDR: "division.division.svc.cluster.local:9090"
+  MULTIPLICATION_SERVER_ADDR: "multiplication.multiplication.svc.cluster.local:9090"
   HTTP_PUBLIC_SERVER_PORT: "8081"

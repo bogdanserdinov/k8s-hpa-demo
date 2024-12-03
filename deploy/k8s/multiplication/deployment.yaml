@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multiplication
+  namespace: multiplication
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: multiplication
+  template:
+    metadata:
+      labels:
+        app: multiplication
+    spec:
+      containers:
+        - name: multiplication
+          image: bogdanserdinov/infra-example:0.1.0
+          command: [ "/bin/sh", "-c", "multiplication" ]
+          ports:
+            - containerPort: 9090
+          envFrom:
+            - configMapRef:
+                name: multiplication-config
+          livenessProbe:
+            httpGet:
+              path: /heathz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 10
