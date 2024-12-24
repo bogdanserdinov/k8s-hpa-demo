@@ -76,15 +76,101 @@ func Down() error {
 
 type Docker mg.Namespace
 
-func (Docker) BuildImage() error {
+func (Docker) BuildImage(registry, tag string) error {
 	return sh.Run(
 		"docker",
 		"build",
 		"--build-arg", "CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S)",
 		"-t",
-		"infra-example",
+		registry+"/infra-example:"+tag,
 		".",
 	)
+}
+
+type K8s mg.Namespace
+
+func (K8s) Apply() error {
+	for _, s := range services {
+		path := fmt.Sprintf("deploy/k8s/%v", s.name)
+
+		// creating the namespace.
+		err := sh.Run("kubectl", "apply", "-f", fmt.Sprintf("%v/namespace.yaml", path))
+		if err != nil {
+			return errors.Wrap(err, "failed to create namespace")
+		}
+
+		// creating the configmap.
+		err = sh.Run("kubectl", "apply", "-f", fmt.Sprintf("%v/config.yaml", path))
+		if err != nil {
+			return errors.Wrap(err, "failed to create configmap")
+		}
+
+		// creating the deployment.
+		err = sh.Run("kubectl", "apply", "-f", fmt.Sprintf("%v/deployment.yaml", path))
+		if err != nil {
+			return errors.Wrap(err, "failed to create deployment")
+		}
+
+		// creating the service.
+		err = sh.Run("kubectl", "apply", "-f", fmt.Sprintf("%v/service.yaml", path))
+		if err != nil {
+			return errors.Wrap(err, "failed to create service")
+		}
+	}
+
+	return nil
+}
+
+func (K8s) Delete() error {
+	for _, s := range services {
+		path := fmt.Sprintf("deploy/k8s/%v", s.name)
+
+		// creating the namespace.
+		err := sh.Run(
+			"kubectl",
+			"delete",
+			"-f", fmt.Sprintf("%v/service.yaml", path),
+			"-n", s.name,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to create namespace")
+		}
+
+		// creating the configmap.
+		err = sh.Run(
+			"kubectl",
+			"delete",
+			"-f", fmt.Sprintf("%v/deployment.yaml", path),
+			"-n", s.name,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to create configmap")
+		}
+
+		// creating the deployment.
+		err = sh.Run(
+			"kubectl",
+			"delete",
+			"-f", fmt.Sprintf("%v/config.yaml", path),
+			"-n", s.name,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to create deployment")
+		}
+
+		// deleting the service.
+		err = sh.Run(
+			"kubectl",
+			"delete",
+			"-f", fmt.Sprintf("%v/namespace.yaml", path),
+			"-n", s.name,
+		)
+		if err != nil {
+			return errors.Wrap(err, "failed to create service")
+		}
+	}
+
+	return nil
 }
 
 type Proto mg.Namespace
