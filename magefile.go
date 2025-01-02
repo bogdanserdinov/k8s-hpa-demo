@@ -91,7 +91,7 @@ type K8s mg.Namespace
 
 func (K8s) Apply() error {
 	for _, s := range services {
-		path := fmt.Sprintf("deploy/k8s/%v", s.name)
+		path := fmt.Sprintf("deploy/k8s/deployments/%v", s.name)
 
 		// creating the namespace.
 		err := sh.Run("kubectl", "apply", "-f", fmt.Sprintf("%v/namespace.yaml", path))
@@ -116,6 +116,17 @@ func (K8s) Apply() error {
 		if err != nil {
 			return errors.Wrap(err, "failed to create service")
 		}
+
+		// we won't create hpa for the gateway service.
+		if s.name == "gateway" {
+			continue
+		}
+
+		// creating the hpa.
+		err = sh.Run("kubectl", "apply", "-f", fmt.Sprintf("%v/hpa.yaml", path))
+		if err != nil {
+			return errors.Wrap(err, "failed to create hpa for the service")
+		}
 	}
 
 	return nil
@@ -123,50 +134,17 @@ func (K8s) Apply() error {
 
 func (K8s) Delete() error {
 	for _, s := range services {
-		path := fmt.Sprintf("deploy/k8s/%v", s.name)
+		path := fmt.Sprintf("deploy/k8s/deployments/%v", s.name)
 
-		// creating the namespace.
+		// namespace deletion will remove all the resources within this namespace under the hood.
 		err := sh.Run(
-			"kubectl",
-			"delete",
-			"-f", fmt.Sprintf("%v/service.yaml", path),
-			"-n", s.name,
-		)
-		if err != nil {
-			return errors.Wrap(err, "failed to create namespace")
-		}
-
-		// creating the configmap.
-		err = sh.Run(
-			"kubectl",
-			"delete",
-			"-f", fmt.Sprintf("%v/deployment.yaml", path),
-			"-n", s.name,
-		)
-		if err != nil {
-			return errors.Wrap(err, "failed to create configmap")
-		}
-
-		// creating the deployment.
-		err = sh.Run(
-			"kubectl",
-			"delete",
-			"-f", fmt.Sprintf("%v/config.yaml", path),
-			"-n", s.name,
-		)
-		if err != nil {
-			return errors.Wrap(err, "failed to create deployment")
-		}
-
-		// deleting the service.
-		err = sh.Run(
 			"kubectl",
 			"delete",
 			"-f", fmt.Sprintf("%v/namespace.yaml", path),
 			"-n", s.name,
 		)
 		if err != nil {
-			return errors.Wrap(err, "failed to create service")
+			return errors.Wrap(err, "failed to delete the namespace")
 		}
 	}
 

@@ -28,3 +28,10 @@ spec:
               port: 8081
             initialDelaySeconds: 15
             periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m          # 1% of a CPU core
+              memory: 32Mi      # 32 MB of memory
+            limits:
+              cpu: 100m         # 10% of a CPU core
+              memory: 128Mi     # 128 MB of memory

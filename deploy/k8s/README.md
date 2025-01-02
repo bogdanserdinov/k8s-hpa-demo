@@ -11,11 +11,16 @@ kubectl apply -f service.yaml
 ```
 
 ### How to Rollback Changes
-To remove the resources you applied, use the following commands:
+To remove the manifests you applied, use the following commands:
 
 ```bash
 kubectl delete deployment <deployment-name> -n <namespace>
 kubectl delete service <service-name> -n <namespace>
 kubectl delete configmap <configmap-name> -n <namespace>
 kubectl delete namespace <namespace>
+```
+
+### How to expose the gateway service (testing purpose only)
+```bash
+kubectl port-forward -n gateway svc/gateway 8081:80
 ```

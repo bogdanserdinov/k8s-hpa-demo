@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: division
   namespace: division
+  annotations:
+    mesh.traefik.io/scheme: "h2c"
 spec:
   ports:
     - name: http

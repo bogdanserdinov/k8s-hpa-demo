@@ -1,8 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: multiplication
-  namespace: multiplication
+  name: addition
+  namespace: addition
+  annotations:
+    mesh.traefik.io/scheme: "h2c"
 spec:
   ports:
     - name: http
@@ -10,4 +12,4 @@ spec:
       port: 9090
       targetPort: 9090
   selector:
-    app: multiplication
+    app: addition
