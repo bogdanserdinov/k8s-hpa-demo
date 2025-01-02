@@ -3,6 +3,7 @@ syntax = "proto3";
 package division.v1;
 
 import "google/api/annotations.proto";
+import "x/factorial/factorial.proto";
 
 option go_package = "example/gen/go/division/v1;divisionpb";
 
@@ -13,6 +14,13 @@ service DivisionService {
       body: "*"
     };
   };
+
+  rpc Factorial(x.factorial.FactorialRequest) returns(x.factorial.FactorialResponse) {
+    option (google.api.http) = {
+      post: "/api/division/v1/factorial"
+      body: "*"
+    };
+  }
 };
 
 message DivideRequest {

@@ -16,6 +16,38 @@
     "application/json"
   ],
   "paths": {
+    "/api/subtraction/v1/factorial": {
+      "post": {
+        "operationId": "SubtractionService_Factorial",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/factorialFactorialResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/factorialFactorialRequest"
+            }
+          }
+        ],
+        "tags": [
+          "SubtractionService"
+        ]
+      }
+    },
     "/api/subtraction/v1/subtract": {
       "post": {
         "operationId": "SubtractionService_Subtract",
@@ -50,6 +82,24 @@
     }
   },
   "definitions": {
+    "factorialFactorialRequest": {
+      "type": "object",
+      "properties": {
+        "num": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "factorialFactorialResponse": {
+      "type": "object",
+      "properties": {
+        "res": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {

@@ -24,3 +24,25 @@ kubectl delete namespace <namespace>
 ```bash
 kubectl port-forward -n gateway svc/gateway 8081:80
 ```
+
+### Metrics server
+
+Apply:
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+Delete:
+
+```bash
+kubectl delete -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+```
+
+Patch metrics-server to use insecure tls:
+
+```bash
+kubectl patch deployment metrics-server -n kube-system \
+  --type='json' \
+  -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "--kubelet-insecure-tls"}]'
+```

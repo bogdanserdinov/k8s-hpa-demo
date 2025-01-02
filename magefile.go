@@ -3,11 +3,16 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
+	factorial "example/gen/go/x/factorial"
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
@@ -136,6 +141,10 @@ func (K8s) Delete() error {
 	for _, s := range services {
 		path := fmt.Sprintf("deploy/k8s/deployments/%v", s.name)
 
+		if s.name == "addition" {
+			continue
+		}
+
 		// namespace deletion will remove all the resources within this namespace under the hood.
 		err := sh.Run(
 			"kubectl",
@@ -151,6 +160,17 @@ func (K8s) Delete() error {
 	return nil
 }
 
+func (K8s) ExposeGateway() error {
+	return sh.Run(
+		"kubectl",
+		"port-forward",
+		"svc/gateway",
+		"-n",
+		"gateway",
+		"8080:80",
+	)
+}
+
 type Proto mg.Namespace
 
 // Generate the protobuf files for all services,
@@ -159,6 +179,13 @@ func (Proto) Buf() error {
 	// Clean up the gen directory
 	if err := sh.Run("rm", "-rf", "gen"); err != nil {
 		return err
+	}
+
+	// Generate the protobuf files for common services.
+	if err := sh.Run("buf", "generate",
+		"--path", "proto/x",
+	); err != nil {
+		return fmt.Errorf("failed to generate protobuf files for common services: %v", err)
 	}
 
 	// Generate the protobuf files for all registered services.
@@ -202,6 +229,28 @@ func (Proto) Buf() error {
 	}
 
 	return nil
+}
+
+func Release(version string) error {
+	registry := "bogdanserdinov/infra-example"
+
+	err := sh.Run(
+		"docker",
+		"build",
+		"-t",
+		fmt.Sprintf("%s:%s", registry, version),
+		".",
+	)
+	if err != nil {
+		fmt.Printf("❌ Failed to build the image: err = %v\n", err)
+		return err
+	}
+
+	return sh.Run(
+		"docker",
+		"push",
+		fmt.Sprintf("%s:%s", registry, version),
+	)
 }
 
 // check if the directory exists
@@ -264,4 +313,70 @@ func getProtoFiles(path string) ([]string, error) {
 	}
 
 	return protoFiles, nil
+}
+
+// Usage mage LoadTest http://localhost:8080 500 100
+func LoadTest(gatewayURL string, interval, duration int) error {
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+	done := make(chan struct{})
+	ticker := time.NewTicker(time.Duration(interval) * time.Millisecond)
+	defer ticker.Stop()
+
+	go func() {
+		time.Sleep(time.Duration(duration) * time.Second)
+		done <- struct{}{}
+	}()
+
+	for {
+		select {
+		case <-ticker.C:
+			doRequest(client, gatewayURL)
+		case <-done:
+			return nil
+		}
+	}
+}
+
+const routePattern = "%s/api/%s/v1/factorial"
+
+func doRequest(client http.Client, baseURL string) {
+	payload := &factorial.FactorialRequest{
+		Num: 18,
+	}
+
+	rawBody, err := json.Marshal(payload)
+	if err != nil {
+		log.Printf("❌ Error to mashal the request, err = %v", err)
+		return
+	}
+
+	fmt.Println(string(rawBody))
+
+	for _, service := range services {
+		if service.name == "gateway" {
+			continue
+		}
+
+		route := fmt.Sprintf(routePattern, baseURL, service.name)
+
+		req, err := http.NewRequest(http.MethodPost, route, bytes.NewReader(rawBody))
+		if err != nil {
+			log.Printf("❌ Error to create request, err = %v", err)
+			return
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("❌ Error to call route %v, err = %v", route, err)
+			continue
+		}
+
+		if resp.StatusCode == http.StatusOK {
+			log.Println("✅", route, service.name, resp.StatusCode)
+		} else {
+			log.Println("❌", route, service.name, resp.StatusCode)
+		}
+	}
 }

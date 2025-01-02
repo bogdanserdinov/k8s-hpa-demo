@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package x.factorial;
+
+option go_package = "example/gen/go/x/factorial;factorialpb";
+
+message FactorialRequest {
+  int64 num = 1;
+};
+
+message FactorialResponse {
+  int64 res = 1;
+};

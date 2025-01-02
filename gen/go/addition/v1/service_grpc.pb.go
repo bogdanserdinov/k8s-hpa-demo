@@ -8,6 +8,7 @@ package additionpb
 
 import (
 	context "context"
+	factorial "example/gen/go/x/factorial"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AdditionService_Add_FullMethodName = "/addition.v1.AdditionService/Add"
+	AdditionService_Add_FullMethodName       = "/addition.v1.AdditionService/Add"
+	AdditionService_Factorial_FullMethodName = "/addition.v1.AdditionService/Factorial"
 )
 
 // AdditionServiceClient is the client API for AdditionService service.
@@ -27,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AdditionServiceClient interface {
 	Add(ctx context.Context, in *AddRequest, opts ...grpc.CallOption) (*AddResponse, error)
+	Factorial(ctx context.Context, in *factorial.FactorialRequest, opts ...grpc.CallOption) (*factorial.FactorialResponse, error)
 }
 
 type additionServiceClient struct {
@@ -46,11 +49,21 @@ func (c *additionServiceClient) Add(ctx context.Context, in *AddRequest, opts ..
 	return out, nil
 }
 
+func (c *additionServiceClient) Factorial(ctx context.Context, in *factorial.FactorialRequest, opts ...grpc.CallOption) (*factorial.FactorialResponse, error) {
+	out := new(factorial.FactorialResponse)
+	err := c.cc.Invoke(ctx, AdditionService_Factorial_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AdditionServiceServer is the server API for AdditionService service.
 // All implementations should embed UnimplementedAdditionServiceServer
 // for forward compatibility
 type AdditionServiceServer interface {
 	Add(context.Context, *AddRequest) (*AddResponse, error)
+	Factorial(context.Context, *factorial.FactorialRequest) (*factorial.FactorialResponse, error)
 }
 
 // UnimplementedAdditionServiceServer should be embedded to have forward compatible implementations.
@@ -59,6 +72,9 @@ type UnimplementedAdditionServiceServer struct {
 
 func (UnimplementedAdditionServiceServer) Add(context.Context, *AddRequest) (*AddResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Add not implemented")
+}
+func (UnimplementedAdditionServiceServer) Factorial(context.Context, *factorial.FactorialRequest) (*factorial.FactorialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Factorial not implemented")
 }
 
 // UnsafeAdditionServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -90,6 +106,24 @@ func _AdditionService_Add_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdditionService_Factorial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(factorial.FactorialRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdditionServiceServer).Factorial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AdditionService_Factorial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdditionServiceServer).Factorial(ctx, req.(*factorial.FactorialRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AdditionService_ServiceDesc is the grpc.ServiceDesc for AdditionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -100,6 +134,10 @@ var AdditionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Add",
 			Handler:    _AdditionService_Add_Handler,
+		},
+		{
+			MethodName: "Factorial",
+			Handler:    _AdditionService_Factorial_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

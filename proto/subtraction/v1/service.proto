@@ -3,6 +3,7 @@ syntax = "proto3";
 package subtraction.v1;
 
 import "google/api/annotations.proto";
+import "x/factorial/factorial.proto";
 
 option go_package = "example/gen/go/subtraction/v1;subtractionpb";
 
@@ -13,6 +14,13 @@ service SubtractionService {
       body: "*"
     };
   };
+
+  rpc Factorial(x.factorial.FactorialRequest) returns(x.factorial.FactorialResponse) {
+    option (google.api.http) = {
+      post: "/api/subtraction/v1/factorial"
+      body: "*"
+    };
+  }
 };
 
 message SubtractRequest {

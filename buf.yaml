@@ -11,9 +11,6 @@ lint:
     - DEFAULT
   ignore:
     - google
-    - github.com
-    - lightning
-    - webhooks_listener
 breaking:
   use:
     - FILE

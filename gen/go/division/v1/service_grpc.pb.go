@@ -8,6 +8,7 @@ package divisionpb
 
 import (
 	context "context"
+	factorial "example/gen/go/x/factorial"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	DivisionService_Divide_FullMethodName = "/division.v1.DivisionService/Divide"
+	DivisionService_Divide_FullMethodName    = "/division.v1.DivisionService/Divide"
+	DivisionService_Factorial_FullMethodName = "/division.v1.DivisionService/Factorial"
 )
 
 // DivisionServiceClient is the client API for DivisionService service.
@@ -27,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DivisionServiceClient interface {
 	Divide(ctx context.Context, in *DivideRequest, opts ...grpc.CallOption) (*DivideResponse, error)
+	Factorial(ctx context.Context, in *factorial.FactorialRequest, opts ...grpc.CallOption) (*factorial.FactorialResponse, error)
 }
 
 type divisionServiceClient struct {
@@ -46,11 +49,21 @@ func (c *divisionServiceClient) Divide(ctx context.Context, in *DivideRequest, o
 	return out, nil
 }
 
+func (c *divisionServiceClient) Factorial(ctx context.Context, in *factorial.FactorialRequest, opts ...grpc.CallOption) (*factorial.FactorialResponse, error) {
+	out := new(factorial.FactorialResponse)
+	err := c.cc.Invoke(ctx, DivisionService_Factorial_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DivisionServiceServer is the server API for DivisionService service.
 // All implementations should embed UnimplementedDivisionServiceServer
 // for forward compatibility
 type DivisionServiceServer interface {
 	Divide(context.Context, *DivideRequest) (*DivideResponse, error)
+	Factorial(context.Context, *factorial.FactorialRequest) (*factorial.FactorialResponse, error)
 }
 
 // UnimplementedDivisionServiceServer should be embedded to have forward compatible implementations.
@@ -59,6 +72,9 @@ type UnimplementedDivisionServiceServer struct {
 
 func (UnimplementedDivisionServiceServer) Divide(context.Context, *DivideRequest) (*DivideResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Divide not implemented")
+}
+func (UnimplementedDivisionServiceServer) Factorial(context.Context, *factorial.FactorialRequest) (*factorial.FactorialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Factorial not implemented")
 }
 
 // UnsafeDivisionServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -90,6 +106,24 @@ func _DivisionService_Divide_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _DivisionService_Factorial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(factorial.FactorialRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DivisionServiceServer).Factorial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DivisionService_Factorial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DivisionServiceServer).Factorial(ctx, req.(*factorial.FactorialRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // DivisionService_ServiceDesc is the grpc.ServiceDesc for DivisionService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -100,6 +134,10 @@ var DivisionService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Divide",
 			Handler:    _DivisionService_Divide_Handler,
+		},
+		{
+			MethodName: "Factorial",
+			Handler:    _DivisionService_Factorial_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

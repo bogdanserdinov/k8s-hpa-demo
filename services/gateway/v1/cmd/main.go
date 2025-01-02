@@ -92,7 +92,7 @@ func main() {
 	router.HandleFunc("/heathz", func(writer http.ResponseWriter, request *http.Request) {}).Methods(http.MethodGet)
 
 	router.PathPrefix("/").Handler(
-		http.StripPrefix("/", grpcMux),
+		http.StripPrefix("", grpcMux),
 	)
 
 	// Start HTTP server (and proxy calls to gRPC server endpoint)

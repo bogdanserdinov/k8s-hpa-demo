@@ -8,6 +8,7 @@ package multiplicationpb
 
 import (
 	context "context"
+	factorial "example/gen/go/x/factorial"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -19,7 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MultiplicationService_Multiply_FullMethodName = "/multiplication.v1.MultiplicationService/Multiply"
+	MultiplicationService_Multiply_FullMethodName  = "/multiplication.v1.MultiplicationService/Multiply"
+	MultiplicationService_Factorial_FullMethodName = "/multiplication.v1.MultiplicationService/Factorial"
 )
 
 // MultiplicationServiceClient is the client API for MultiplicationService service.
@@ -27,6 +29,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MultiplicationServiceClient interface {
 	Multiply(ctx context.Context, in *MultiplyRequest, opts ...grpc.CallOption) (*MultiplyResponse, error)
+	Factorial(ctx context.Context, in *factorial.FactorialRequest, opts ...grpc.CallOption) (*factorial.FactorialResponse, error)
 }
 
 type multiplicationServiceClient struct {
@@ -46,11 +49,21 @@ func (c *multiplicationServiceClient) Multiply(ctx context.Context, in *Multiply
 	return out, nil
 }
 
+func (c *multiplicationServiceClient) Factorial(ctx context.Context, in *factorial.FactorialRequest, opts ...grpc.CallOption) (*factorial.FactorialResponse, error) {
+	out := new(factorial.FactorialResponse)
+	err := c.cc.Invoke(ctx, MultiplicationService_Factorial_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MultiplicationServiceServer is the server API for MultiplicationService service.
 // All implementations should embed UnimplementedMultiplicationServiceServer
 // for forward compatibility
 type MultiplicationServiceServer interface {
 	Multiply(context.Context, *MultiplyRequest) (*MultiplyResponse, error)
+	Factorial(context.Context, *factorial.FactorialRequest) (*factorial.FactorialResponse, error)
 }
 
 // UnimplementedMultiplicationServiceServer should be embedded to have forward compatible implementations.
@@ -59,6 +72,9 @@ type UnimplementedMultiplicationServiceServer struct {
 
 func (UnimplementedMultiplicationServiceServer) Multiply(context.Context, *MultiplyRequest) (*MultiplyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Multiply not implemented")
+}
+func (UnimplementedMultiplicationServiceServer) Factorial(context.Context, *factorial.FactorialRequest) (*factorial.FactorialResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Factorial not implemented")
 }
 
 // UnsafeMultiplicationServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -90,6 +106,24 @@ func _MultiplicationService_Multiply_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MultiplicationService_Factorial_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(factorial.FactorialRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MultiplicationServiceServer).Factorial(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MultiplicationService_Factorial_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MultiplicationServiceServer).Factorial(ctx, req.(*factorial.FactorialRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MultiplicationService_ServiceDesc is the grpc.ServiceDesc for MultiplicationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -100,6 +134,10 @@ var MultiplicationService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Multiply",
 			Handler:    _MultiplicationService_Multiply_Handler,
+		},
+		{
+			MethodName: "Factorial",
+			Handler:    _MultiplicationService_Factorial_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

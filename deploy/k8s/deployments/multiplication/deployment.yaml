@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: multiplication
-          image: bogdanserdinov/infra-example:1.1.0
+          image: bogdanserdinov/infra-example:1.1.1
           command: [ "/bin/sh", "-c", "multiplication" ]
           ports:
             - containerPort: 9090
