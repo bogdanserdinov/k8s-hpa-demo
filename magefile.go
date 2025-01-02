@@ -141,10 +141,6 @@ func (K8s) Delete() error {
 	for _, s := range services {
 		path := fmt.Sprintf("deploy/k8s/deployments/%v", s.name)
 
-		if s.name == "addition" {
-			continue
-		}
-
 		// namespace deletion will remove all the resources within this namespace under the hood.
 		err := sh.Run(
 			"kubectl",
