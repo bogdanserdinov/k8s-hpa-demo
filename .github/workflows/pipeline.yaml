@@ -67,7 +67,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd deploy/k8s/deployments
-          for file in $(find ./deployments -type f -name "*.yaml"); do
+          for file in $(find . -type f -name "*.yaml"); do
             sed -i "s|image: $IMAGE_NAME:.*|image: $IMAGE_NAME:$IMAGE_TAG|g" "$file"
           done
           git config --global user.name "GitHub Actions"
