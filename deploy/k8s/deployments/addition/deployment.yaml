@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: addition
-          image: bogdanserdinov/infra-example:1.1.1
+          image: bogdanserdinov/infra-example::ef0cb6f6
           command: [ "/bin/sh", "-c", "addition" ]
           ports:
             - containerPort: 9090
