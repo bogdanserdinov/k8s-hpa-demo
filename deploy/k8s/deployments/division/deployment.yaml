@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: division
-          image: bogdanserdinov/infra-example:ef0cb6f6
+          image: bogdanserdinov/infra-example:ce7b625c
           command: [ "/bin/sh", "-c", "division" ]
           ports:
             - containerPort: 9090
