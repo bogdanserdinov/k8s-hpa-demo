@@ -81,23 +81,14 @@ func Down() error {
 
 type Docker mg.Namespace
 
-func (Docker) BuildAndPush(registry, tag string) error {
-	err := sh.Run(
+func (Docker) BuildImage(registry, tag string) error {
+	return sh.Run(
 		"docker",
 		"build",
 		"--build-arg", "CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S)",
 		"-t",
-		registry+"/infra-example:"+tag,
+		"infra-example",
 		".",
-	)
-	if err != nil {
-		return err
-	}
-
-	return sh.Run(
-		"docker",
-		"push",
-		registry+"/infra-example:"+tag,
 	)
 }
 
@@ -173,6 +164,31 @@ func (K8s) ExposeGateway() error {
 		"-n",
 		"gateway",
 		"8080:80",
+	)
+}
+
+// GetPods returns the pods for the given namespace.
+// Usage: mage -v k8s:GetPods addition
+func (K8s) GetPods(namespace string) error {
+	return sh.Run(
+		"kubectl",
+		"get",
+		"pods",
+		"-n",
+		namespace,
+	)
+}
+
+// GetHpa returns the Horizontal Pod Autoscaler for the given namespace.
+// Usage: mage -v k8s:GetHpa addition
+func (K8s) GetHpa(namespace string) error {
+	return sh.Run(
+		"kubectl",
+		"get",
+		"hpa",
+		fmt.Sprintf("%s-hpa", namespace),
+		"-n",
+		namespace,
 	)
 }
 
@@ -320,7 +336,7 @@ func getProtoFiles(path string) ([]string, error) {
 	return protoFiles, nil
 }
 
-// Usage mage LoadTest http://localhost:8080 500 100
+// Usage mage -v LoadTest http://localhost:8081 500 100
 func LoadTest(gatewayURL string, interval, duration int) error {
 	client := http.Client{
 		Timeout: 10 * time.Second,
@@ -356,8 +372,6 @@ func doRequest(client http.Client, baseURL string) {
 		log.Printf("❌ Error to mashal the request, err = %v", err)
 		return
 	}
-
-	fmt.Println(string(rawBody))
 
 	for _, service := range services {
 		if service.name == "gateway" {
