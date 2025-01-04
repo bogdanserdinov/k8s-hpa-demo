@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: multiplication
-          image: bogdanserdinov/infra-example:ce7b625c
+          image: bogdanserdinov/infra-example:1.2.1
           command: [ "/bin/sh", "-c", "multiplication" ]
           ports:
             - containerPort: 9090
@@ -30,8 +30,8 @@ spec:
             periodSeconds: 10
           resources:
             requests:
-              cpu: 10m          # 1% of a CPU core
-              memory: 32Mi      # 32 MB of memory
+              cpu: 10m
+              memory: 32Mi
             limits:
-              cpu: 100m         # 10% of a CPU core
-              memory: 128Mi     # 128 MB of memory
+              cpu: 100m
+              memory: 128Mi

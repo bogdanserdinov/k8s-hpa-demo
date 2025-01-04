@@ -81,14 +81,23 @@ func Down() error {
 
 type Docker mg.Namespace
 
-func (Docker) BuildImage(registry, tag string) error {
-	return sh.Run(
+func (Docker) BuildAndPush(registry, tag string) error {
+	err := sh.Run(
 		"docker",
 		"build",
 		"--build-arg", "CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S)",
 		"-t",
 		registry+"/infra-example:"+tag,
 		".",
+	)
+	if err != nil {
+		return err
+	}
+
+	return sh.Run(
+		"docker",
+		"push",
+		registry+"/infra-example:"+tag,
 	)
 }
 
