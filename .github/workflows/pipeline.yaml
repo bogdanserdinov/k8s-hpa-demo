@@ -62,7 +62,7 @@ jobs:
 
       - name: Update Manifests
         env:
-          IMAGE_TAG: :${{ env.SHORT_SHA }}
+          IMAGE_TAG: ${{ env.SHORT_SHA }}
           IMAGE_NAME: bogdanserdinov/infra-example
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

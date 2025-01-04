@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: gateway
-          image: bogdanserdinov/infra-example::ef0cb6f6
+          image: bogdanserdinov/infra-example:ef0cb6f6
           command: [ "/bin/sh", "-c", "gateway" ]
           ports:
             - containerPort: 8081
