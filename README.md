@@ -10,7 +10,7 @@ How to deploy the application to the Kubernetes cluster:
 kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
 ```
 
-2. Uppdate metrics policy to use insecure tls:
+2. Update metrics policy to use insecure tls:
 ```bash
 kubectl patch deployment metrics-server -n kube-system \
   --type='json' \
@@ -24,12 +24,12 @@ mage -v k8s:apply
 
 4. Expose the gateway service (testing purpose only)
 ```bash
-kubectl port-forward -n gateway svc/gateway 8081:80
+kubectl port-forward -n gateway svc/gateway 8083:80
 ```
 
 5. Load testing
 ```bash
-mage -v LoadTest http://localhost:8081 500 100
+mage -v LoadTest http://localhost:8083 500 100
 ```
 
 6. Observe the HPA or list the pods
